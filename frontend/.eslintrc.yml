@@ -1,0 +1,44 @@
+parser: '@babel/eslint-parser'
+env:
+  browser: true
+  es6: true
+extends:
+  - google
+  - plugin:react/recommended
+plugins:
+  - react
+  - jsdoc
+parserOptions:
+  allowImportExportEverywhere: true
+  ecmaFeatures:
+    jsx: true
+  ecmaVersion: 6
+  sourceType: module
+settings:
+  react:
+    version: detect
+rules:
+  no-unused-vars:
+    - warn
+    - varsIgnorePattern: ^React$
+  max-len:
+    - off
+  strict:
+    - error
+  linebreak-style:
+    - error
+    - unix
+  operator-linebreak:
+    - off
+  indent:
+    - warn
+    - 2
+    - ArrayExpression: 'first'
+      SwitchCase: 1
+      offsetTernaryExpressions: true
+  comma-dangle: off
+  space-before-function-paren: off
+  valid-jsdoc:
+    - off
+  requireConfigFile:
+    - off

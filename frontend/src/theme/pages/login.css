@@ -1,0 +1,13 @@
+#entry-page .navbar {
+  padding: 1rem;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}

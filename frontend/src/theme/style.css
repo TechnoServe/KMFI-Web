@@ -1,0 +1,41 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&display=swap');
+@import './pages/login.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.form-control {
+  @apply bg-transparent focus:outline-none rounded py-3 px-4 w-full;
+}
+
+.btn {
+  @apply focus:outline-none rounded border py-3 px-4;
+}
+
+select {
+  background-image: url("../assets/images/chevron-down.svg");
+  background-position: right center;
+  background-repeat: no-repeat;
+}
+
+.popup-content {
+  margin: auto;
+  background: rgb(255, 255, 255);
+  width: 50%;
+  padding: 5px;
+}
+.popup-arrow {
+  color: rgb(255, 255, 255);
+}
+[role='tooltip'].popup-content {
+  @apply shadow-2xl
+}
+
+.popup-overlay {
+  @apply w-screen h-screen bg-white bg-opacity-90 fixed top-0 left-0;
+  
+}
+[data-popup='tooltip'].popup-overlay {
+  background: transparent;
+}

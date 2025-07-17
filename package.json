@@ -1,0 +1,37 @@
+{
+  "name": "kmfi",
+  "version": "1.0.0",
+  "description": "",
+  "main": "functions/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "serve": "cross-env NODE_ENV=development firebase serve",
+    "deploy": "firebase deploy",
+    "debug:deploy": "firebase --debug deploy",
+    "format": "prettier --write \"(frontend|functions)/**/*.(js|jsx|json)\"",
+    "lint": "npm run lint:frontend && npm run lint:functions",
+    "lint:frontend": "cd frontend && npm run lint",
+    "lint:functions": "cd functions && npm run lint",
+    "husky:install": "husky install",
+    "postinstall": "npm run husky:install",
+    "pre-commit": "npm run lint"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/namo-topcoder/kmfi-main.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/namo-topcoder/kmfi-main/issues"
+  },
+  "homepage": "https://github.com/namo-topcoder/kmfi-main#readme",
+  "devDependencies": {
+    "husky": "^9.0.7",
+    "prettier": "^2.3.1",
+    "pretty-quick": "^3.1.0"
+  },
+  "dependencies": {
+    "cross-env": "^7.0.3"
+  }
+}
