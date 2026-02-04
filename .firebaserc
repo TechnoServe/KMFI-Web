@@ -1,5 +1,18 @@
 {
   "projects": {
-    "default": "kmfi-945ef"
-  }
+    "default": "ignite-program"
+  },
+  "targets": {
+    "ignite-program": {
+      "hosting": {
+        "mfi": [
+          "ignite-program"
+        ],
+        "kmfi": [
+          "ignite-kmfi"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }

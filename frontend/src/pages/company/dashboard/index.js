@@ -300,16 +300,38 @@ const Dashboard = () => {
   };
 
 
-  useEffect(async () => {
-    user.company && getCompanyDetails();
-    user.company && getSATScores();
-    user.company && getTestScores();
-    user.company && getPTScores();
-  }, [user]);
+  useEffect(() => {
+    if (!user?.company?.id) return;
+    let cancelled = false;
+    setLoading(true);
+    (async () => {
+      try {
+        await Promise.allSettled([
+          getCompanyDetails(),
+          getSATScores(selectedCycle),
+          getTestScores(selectedCycle),
+          getPTScores(selectedCycle),
+        ]);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.company?.id, selectedCycle]);
 
   useEffect(() => {
     analyze();
-  }, [satData, iegData, ivcData, ptData, previousScores, ptDataPrevious, setAflatoxinData, setOverviewData, setPTDataPrevious, setPTData]);
+  }, [
+    satData,
+    iegData,
+    ivcData,
+    ptData,
+    previousScores,
+    ptDataPrevious,
+    brandDropDown,
+  ]);
 
   const analyze = () => {
     const filteredCompanyBrand =
@@ -319,6 +341,12 @@ const Dashboard = () => {
         })
         : [];
 
+    if (!filteredCompanyBrand.length) {
+      setCompanySATScores([]);
+      setCompanyIEGScores([]);
+      setCompanyIVCScores([]);
+      return;
+    }
 
     const satScoresArr = [];
     const satTotalScoreArr = [];
@@ -523,19 +551,28 @@ const Dashboard = () => {
     let PTTesting = 0;
     let averagePTTesting = 0;
     if (brandTesting[0]?.productType?.aflatoxin) {
-      PTTesting = brandTesting[0]?.productTests.fortification?.overallKMFIWeightedScore;
+      if (brandTesting[0]?.productTests != null && brandTesting[0]?.productTests.length !== 0) {
+        PTTesting = brandTesting[0]?.productTests?.fortification?.overallKMFIWeightedScore;
+      }
     } else {
-      PTTesting = brandTesting[0]?.productTests.fortification?.score;
+      if (brandTesting[0]?.productTests != null && brandTesting[0]?.productTests.length !== 0) {
+        PTTesting = brandTesting[0]?.productTests?.fortification?.score;
+      }
     }
 
-    latestProductTestingBrand[0]?.map((x) => {
+    (latestProductTestingBrand?.[0] || []).map((x) => {
       if (x.productType.aflatoxin) {
-        averagePTTesting = averagePTTesting + x.productTests.fortification?.overallKMFIWeightedScore;
+        if (x.productTests && x.productTests.length !== 0) {
+          averagePTTesting = averagePTTesting + x.productTests?.fortification?.overallKMFIWeightedScore;
+        }
       } else {
-        averagePTTesting = averagePTTesting + x.productTests.fortification?.score;
+        if (x.productTests && x.productTests.length !== 0) {
+          averagePTTesting = averagePTTesting + x.productTests?.fortification?.score;
+        }
       }
     });
-    averagePTTesting = averagePTTesting / companyBrandDetails[0]?.brands.length;
+    const brandsLen = companyBrandDetails?.[0]?.brands?.length || 0;
+    averagePTTesting = brandsLen ? (averagePTTesting / brandsLen) : 0;
 
 
     const satValueBrand = parseInt(SABrandsTierThree) === 0 ?
@@ -567,23 +604,86 @@ const Dashboard = () => {
 
 
   const setPT = (e) => {
-    const d = JSON.parse(e.target.value);
-    setProductTestingChart((d?.productTests[0]?.fortification?.score));
-    if (d?.productType.aflatoxin) {
-      const overallKMFIWeightedScore = d?.productTests[0]?.fortification?.overallKMFIWeightedScore;
-      setProductTestingChart(overallKMFIWeightedScore);
+    const selectedId = e.target.value;
+    const brands = companyBrandDetails?.[0]?.brands || [];
+    const d = brands.find((b) => b.id === selectedId);
+    if (!d) return;
+
+    // update selection & brand details
+    setBrand(d.id);
+    setBrandName(d.name);
+    setAflatoxin(!!d?.productType?.aflatoxin);
+    setProductTestData(d?.productTests || []);
+
+    // determine latest PT score for this brand
+    const latestPT = Array.isArray(d?.productTests)
+      ? [...d.productTests].sort((a, b) => {
+          const ad = a?.sample_production_date ? new Date(a.sample_production_date).getTime() : 0;
+          const bd = b?.sample_production_date ? new Date(b.sample_production_date).getTime() : 0;
+          return bd - ad;
+        })[0]
+      : undefined;
+
+    const ptScore = d?.productType?.aflatoxin
+      ? latestPT?.fortification?.overallKMFIWeightedScore
+      : latestPT?.fortification?.score;
+
+    setProductTestingChart(ptScore ?? 0);
+
+    // update aflatoxin pie if applicable
+    const aflaScore = latestPT?.aflatoxinScore;
+    if (typeof aflaScore === 'number') {
+      setAflatoxinData([
+        {name: 'Group B', value: aflaScore, color: '#04B279'},
+        {name: 'Group A', value: 100 - aflaScore, color: '#f8f8fa'},
+      ]);
     }
 
+    // --- Instant recompute of Overall Weighted Score (brand) ---
+    const satValueInstant = (typeof ivcTotalScore === 'number' && !Number.isNaN(ivcTotalScore))
+      ? ivcTotalScore
+      : satTotalScore;
+    const ptWeightedInstant = ((ptScore ?? 0) / 100) * 30;
+    const iegWeightedInstant = (iegTotalScore / 100) * 20;
+    const satWeightedInstant = (satValueInstant / 100) * 50;
+    const overallInstant = ptWeightedInstant + iegWeightedInstant + satWeightedInstant;
+    setOverviewData([
+      {name: 'Group B', value: overallInstant, color: '#04B279'},
+      {name: 'Group A', value: 100 - overallInstant, color: '#f8f8fa'},
+    ]);
 
-    setBrand(d?.id);
-    setBrandName(d?.name);
-    setAflatoxin(d?.productType.aflatoxin);
-    setProductTestData(d?.productTests);
-    if (d?.productType.aflatoxin) {
-      setAflatoxinData([
-        {name: 'Group B', value: d?.productTests[0]?.aflatoxinScore, color: '#04B279'},
-        {name: 'Group A', value: 100 - d?.productTests[0]?.aflatoxinScore, color: '#f8f8fa'},
+    // --- Instant recompute of Average Overall Weighted Score (across brands) ---
+    try {
+      let sumPT = 0;
+      let countPT = 0;
+      for (const b of brands) {
+        const pts = Array.isArray(b?.productTests) ? [...b.productTests] : [];
+        if (!pts.length) continue;
+        pts.sort((a, b) => {
+          const ad = a?.sample_production_date ? new Date(a.sample_production_date).getTime() : 0;
+          const bd = b?.sample_production_date ? new Date(b.sample_production_date).getTime() : 0;
+          return bd - ad;
+        });
+        const latest = pts[0];
+        const val = b?.productType?.aflatoxin
+          ? latest?.fortification?.overallKMFIWeightedScore
+          : latest?.fortification?.score;
+        if (typeof val === 'number' && isFinite(val)) {
+          sumPT += val;
+          countPT += 1;
+        }
+      }
+      const avgPT = countPT ? (sumPT / countPT) : 0;
+      const avgPtWeighted = (avgPT / 100) * 30;
+      const avgIegWeighted = (iegTotalScore / 100) * 20;
+      const avgSatWeighted = (satValueInstant / 100) * 50;
+      const avgOverallInstant = avgPtWeighted + avgIegWeighted + avgSatWeighted;
+      setAverageOverviewData([
+        {name: 'Group B', value: avgOverallInstant, color: '#04B279'},
+        {name: 'Group A', value: 100 - avgOverallInstant, color: '#f8f8fa'},
       ]);
+    } catch (_) {
+      // silent fallback – effect-based recompute will also run
     }
   };
 
@@ -637,7 +737,7 @@ const Dashboard = () => {
       <div className="background-color-white padding-x-10 padding-y-6 border-bottom-1px sticky-top-0 flex-row-middle flex-space-between">
         <div className="flex items-center">
           <img
-            src={`https://ui-avatars.com/api/?background=random&name=${companyDetails?.company_name.trim()}$rounded=true`}
+            src={`https://ui-avatars.com/api/?background=random&name=${(companyDetails?.company_name ?? '').trim()}&rounded=true`}
             loading="lazy"
             width="48"
             style={{borderRadius: '50%'}}
@@ -743,15 +843,13 @@ const Dashboard = () => {
                   data-name="Field 2"
                   className="border-1px rounded-large background-color-4 margin-bottom-0 w-select"
                   onChange={setPT}
+                  value={brandDropDown || ''}
                 >
-                  {
-                    companyBrandDetails[0]?.brands?.map((brand) =>
-                      <option
-                        key={brand.id}
-                        value={JSON.stringify(brand)}>
-                        {brand.name}
-                      </option>
-                    )}
+                  {(companyBrandDetails[0]?.brands || []).map((brand) => (
+                    <option key={brand.id} value={brand.id}>
+                      {brand.name}
+                    </option>
+                  ))}
                 </select>
               </form>
               <div className="w-form-done">
@@ -788,8 +886,8 @@ const Dashboard = () => {
                     outerRadius={135}
                     dataKey="value"
                   >
-                    {overviewData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    {averageOverviewData.map((entry, index) => (
+                      <Cell key={`cell-avg-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
                 </PieChart>
@@ -1062,4 +1160,7 @@ const Dashboard = () => {
   );
 };
 
+
 export default Dashboard;
+
+// --- PATCH APPLIED ---

@@ -8,10 +8,12 @@ import {request} from 'common';
 const CompanyInfo = ({company}) => {
   const [saving, setSaving] = useState(false);
   const [staffSizeData, setStaffSizeData] = useState(null);
+  const [companySize, setCompanySize] = useState(null);
   const toast = useToast();
   const [formData, setFormData] = useState({
     company_name: company.company_name,
     company_size: company.company_size,
+    size_category: company.size_category,
   });
 
   useEffect(() => {
@@ -49,7 +51,8 @@ const CompanyInfo = ({company}) => {
       await request(true).post('company/edit', {
         'company-id': company.id,
         'name': formData.company_name,
-        'company-size-id': formData.company_size
+        'company-size-id': formData.company_size,
+        'size_category': formData.size_category,
       });
       setSaving(false);
 
@@ -118,6 +121,21 @@ const CompanyInfo = ({company}) => {
                 </option>
               ))}
             </select>
+            <label htmlFor="size_category" className="form-label">
+              Size Category
+            </label>
+            <select
+              id="size_category"
+              name="size_category"
+              className="form-select margin-bottom-4 w-select"
+              value={formData.size_category}
+              onChange={setFormField}
+            >
+              <option value="SMALL">Small</option>
+              <option value="MEDIUM">Medium</option>
+              <option value="LARGE">Large</option>
+            </select>
+
             <div className="margin-top-10">
               <input
                 type="submit"

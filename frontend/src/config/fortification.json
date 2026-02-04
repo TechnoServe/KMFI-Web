@@ -1,0 +1,255 @@
+{
+    "standards": {
+        "Wheat Flour": {
+            "Vitamin A": {
+                "min": 0.5,
+                "max": 1.4
+            },
+            "Vitamin B3": {
+                "min": 30,
+                "max": null
+            },
+            "Iron": {
+                "min": 20,
+                "max": null
+            }
+        },
+        "Maize Flour": {
+            "Vitamin A": {
+                "min": 0.5,
+                "max": 1.4
+            },
+            "Vitamin B3": {
+                "min": 14.9,
+                "max": null
+            },
+            "Iron": {
+                "min": 21,
+                "max": null
+            }
+        },
+        "Edible Oils": {
+            "Vitamin A": {
+                "min": 20,
+                "max": 40
+            }
+        },
+        "Aflatoxin": {
+            "threshold": 10
+        }
+    },
+    "bands": {
+        "Vitamin A": {
+            "Wheat Flour": [
+                {
+                    "min": 100,
+                    "max": 375,
+                    "score": 30,
+                    "label": "100%–375%"
+                },
+                {
+                    "min": 80,
+                    "max": 99,
+                    "score": 25,
+                    "label": "80%–99%"
+                },
+                {
+                    "min": 376,
+                    "max": 413,
+                    "score": 15,
+                    "label": "51%–79% or ≤10% over Max (376–413%)"
+                },
+                {
+                    "min": 414,
+                    "max": 450,
+                    "score": 10,
+                    "label": "31%–50% or 11–20% over Max (414–450%)"
+                },
+                {
+                    "min": -9999999,
+                    "max": 30.9999,
+                    "score": 0,
+                    "label": "<31% or >450%"
+                },
+                {
+                    "min": 451,
+                    "max": 9999999,
+                    "score": 0,
+                    "label": ">450% (>20% over Max)"
+                }
+            ],
+            "Maize Flour": [
+                {
+                    "min": 100,
+                    "max": 375,
+                    "score": 30,
+                    "label": "100%–375%"
+                },
+                {
+                    "min": 80,
+                    "max": 99,
+                    "score": 25,
+                    "label": "80%–99%"
+                },
+                {
+                    "min": 376,
+                    "max": 413,
+                    "score": 15,
+                    "label": "51%–79% or ≤10% over Max (376–413%)"
+                },
+                {
+                    "min": 414,
+                    "max": 450,
+                    "score": 10,
+                    "label": "31%–50% or 11–20% over Max (414–450%)"
+                },
+                {
+                    "min": -9999999,
+                    "max": 30.9999,
+                    "score": 0,
+                    "label": "<31% or >450%"
+                },
+                {
+                    "min": 451,
+                    "max": 9999999,
+                    "score": 0,
+                    "label": ">450% (>20% over Max)"
+                }
+            ],
+            "Edible Oils": [
+                {
+                    "min": 100,
+                    "max": 200,
+                    "score": 30,
+                    "label": "100%–200%"
+                },
+                {
+                    "min": 80,
+                    "max": 99,
+                    "score": 25,
+                    "label": "80%–99%"
+                },
+                {
+                    "min": 201,
+                    "max": 220,
+                    "score": 15,
+                    "label": "51%–79% or ≤10% over Max (201–220%)"
+                },
+                {
+                    "min": 221,
+                    "max": 240,
+                    "score": 10,
+                    "label": "31%–50% or 11–20% over Max (221–240%)"
+                },
+                {
+                    "min": -9999999,
+                    "max": 30.9999,
+                    "score": 0,
+                    "label": "<31% or >240%"
+                }
+            ]
+        },
+        "Vitamin B3": {
+            "default": [
+                {
+                    "min": 100,
+                    "max": 9999999,
+                    "score": 30,
+                    "label": "≥100%"
+                },
+                {
+                    "min": 80,
+                    "max": 99,
+                    "score": 25,
+                    "label": "80%–99%"
+                },
+                {
+                    "min": 51,
+                    "max": 79,
+                    "score": 15,
+                    "label": "51%–79%"
+                },
+                {
+                    "min": 31,
+                    "max": 50,
+                    "score": 10,
+                    "label": "31%–50%"
+                },
+                {
+                    "min": -9999999,
+                    "max": 30.9999,
+                    "score": 0,
+                    "label": "≤31%"
+                }
+            ]
+        },
+        "Iron": {
+            "default": [
+                {
+                    "min": 100,
+                    "max": 9999999,
+                    "score": 30,
+                    "label": "≥100%"
+                },
+                {
+                    "min": 80,
+                    "max": 99,
+                    "score": 25,
+                    "label": "80%–99%"
+                },
+                {
+                    "min": 51,
+                    "max": 79,
+                    "score": 15,
+                    "label": "51%–79%"
+                },
+                {
+                    "min": 31,
+                    "max": 50,
+                    "score": 10,
+                    "label": "31%–50%"
+                },
+                {
+                    "min": -9999999,
+                    "max": 30.9999,
+                    "score": 0,
+                    "label": "≤31%"
+                }
+            ]
+        },
+        "Aflatoxin": {
+            "default": [
+                {
+                    "min": -9999999,
+                    "max": 100,
+                    "score": 30,
+                    "label": "≤100% (≤10 ppb)"
+                },
+                {
+                    "min": 101,
+                    "max": 120,
+                    "score": 20,
+                    "label": "101%–120% (10.1–12 ppb)"
+                },
+                {
+                    "min": 121,
+                    "max": 150,
+                    "score": 10,
+                    "label": "121%–150% (12.1–15 ppb)"
+                },
+                {
+                    "min": 151,
+                    "max": 200,
+                    "score": 5,
+                    "label": "151%–200% (15.1–20 ppb)"
+                },
+                {
+                    "min": 201,
+                    "max": 9999999,
+                    "score": 0,
+                    "label": ">200% (>20 ppb)"
+                }
+            ]
+        }
+    }
+}

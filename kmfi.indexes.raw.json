@@ -1,0 +1,722 @@
+[
+  {
+    "density": "SPARSE_ALL",
+    "fields": [
+      {
+        "fieldPath": "product_micro_nutrient_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "product_type",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ],
+    "name": "projects/kmfi-945ef/databases/(default)/collectionGroups/MicroNutrientScores/indexes/CICAgNjpgYIJ",
+    "queryScope": "COLLECTION",
+    "state": "READY"
+  },
+  {
+    "density": "SPARSE_ALL",
+    "fields": [
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "brand_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "product_type",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ],
+    "name": "projects/kmfi-945ef/databases/(default)/collectionGroups/ProductTesting/indexes/CICAgNjaxJEJ",
+    "queryScope": "COLLECTION",
+    "state": "READY"
+  },
+  {
+    "density": "SPARSE_ALL",
+    "fields": [
+      {
+        "fieldPath": "category_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "updated_at",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ],
+    "name": "projects/kmfi-945ef/databases/(default)/collectionGroups/SAAnswers/indexes/CICAgPjChIAK",
+    "queryScope": "COLLECTION",
+    "state": "READY"
+  },
+  {
+    "density": "SPARSE_ALL",
+    "fields": [
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "cycle_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "category_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "type",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ],
+    "name": "projects/kmfi-945ef/databases/(default)/collectionGroups/AssessmentScores/indexes/CICAgNiav4AK",
+    "queryScope": "COLLECTION",
+    "state": "READY"
+  },
+  {
+    "density": "SPARSE_ALL",
+    "fields": [
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "cycle_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "updated_at",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ],
+    "name": "projects/kmfi-945ef/databases/(default)/collectionGroups/IVCAnswers/indexes/CICAgJim14AK",
+    "queryScope": "COLLECTION",
+    "state": "READY"
+  },
+  {
+    "density": "SPARSE_ALL",
+    "fields": [
+      {
+        "fieldPath": "category_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "cycle_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "updated_at",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ],
+    "name": "projects/kmfi-945ef/databases/(default)/collectionGroups/IVCAnswers/indexes/CICAgLjy8IAK",
+    "queryScope": "COLLECTION",
+    "state": "READY"
+  },
+  {
+    "density": "SPARSE_ALL",
+    "fields": [
+      {
+        "fieldPath": "parent_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "sort_order",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ],
+    "name": "projects/kmfi-945ef/databases/(default)/collectionGroups/QuestionCategories/indexes/CICAgOjXh4EK",
+    "queryScope": "COLLECTION",
+    "state": "READY"
+  },
+  {
+    "density": "SPARSE_ALL",
+    "fields": [
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "updated_at",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ],
+    "name": "projects/kmfi-945ef/databases/(default)/collectionGroups/SAAnswers/indexes/CICAgNiroIEK",
+    "queryScope": "COLLECTION",
+    "state": "READY"
+  },
+  {
+    "density": "SPARSE_ALL",
+    "fields": [
+      {
+        "fieldPath": "approved",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "updated_at",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ],
+    "name": "projects/kmfi-945ef/databases/(default)/collectionGroups/SAAnswers/indexes/CICAgJj7z4EK",
+    "queryScope": "COLLECTION",
+    "state": "READY"
+  },
+  {
+    "density": "SPARSE_ALL",
+    "fields": [
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "cycle_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "updated_at",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ],
+    "name": "projects/kmfi-945ef/databases/(default)/collectionGroups/SAAnswers/indexes/CICAgLiT6IEK",
+    "queryScope": "COLLECTION",
+    "state": "READY"
+  },
+  {
+    "density": "SPARSE_ALL",
+    "fields": [
+      {
+        "fieldPath": "category_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "cycle_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "updated_at",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ],
+    "name": "projects/kmfi-945ef/databases/(default)/collectionGroups/SAAnswers/indexes/CICAgNjpgYIK",
+    "queryScope": "COLLECTION",
+    "state": "READY"
+  },
+  {
+    "density": "SPARSE_ALL",
+    "fields": [
+      {
+        "fieldPath": "category_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "tier_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "sort_order",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ],
+    "name": "projects/kmfi-945ef/databases/(default)/collectionGroups/SAQuestion/indexes/CICAgPj-pYIK",
+    "queryScope": "COLLECTION",
+    "state": "READY"
+  },
+  {
+    "density": "SPARSE_ALL",
+    "fields": [
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "cycle_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "tier",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "category_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ],
+    "name": "projects/kmfi-945ef/databases/(default)/collectionGroups/SAAnswers/indexes/CICAgLjRyYIK",
+    "queryScope": "COLLECTION",
+    "state": "READY"
+  },
+  {
+    "density": "SPARSE_ALL",
+    "fields": [
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "created_at",
+        "order": "DESCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "DESCENDING"
+      }
+    ],
+    "name": "projects/kmfi-945ef/databases/(default)/collectionGroups/ActivityLogs/indexes/CICAgJjF9oIK",
+    "queryScope": "COLLECTION",
+    "state": "READY"
+  },
+  {
+    "density": "SPARSE_ALL",
+    "fields": [
+      {
+        "fieldPath": "brand_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "cycle_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ],
+    "name": "projects/kmfi-945ef/databases/(default)/collectionGroups/ProductTesting/indexes/CICAgLiIkYMK",
+    "queryScope": "COLLECTION",
+    "state": "READY"
+  },
+  {
+    "density": "SPARSE_ALL",
+    "fields": [
+      {
+        "fieldPath": "approved",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "cycle_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "updated_at",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ],
+    "name": "projects/kmfi-945ef/databases/(default)/collectionGroups/SAAnswers/indexes/CICAgJiUpoMK",
+    "queryScope": "COLLECTION",
+    "state": "READY"
+  },
+  {
+    "density": "SPARSE_ALL",
+    "fields": [
+      {
+        "fieldPath": "tier_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "category_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ],
+    "name": "projects/kmfi-945ef/databases/(default)/collectionGroups/SAQuestion/indexes/CICAgPig2YMK",
+    "queryScope": "COLLECTION",
+    "state": "READY"
+  },
+  {
+    "density": "SPARSE_ALL",
+    "fields": [
+      {
+        "fieldPath": "created_at",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "owner_type",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ],
+    "name": "projects/kmfi-945ef/databases/(default)/collectionGroups/Comments/indexes/CICAgNi47oMK",
+    "queryScope": "COLLECTION",
+    "state": "READY"
+  },
+  {
+    "density": "SPARSE_ALL",
+    "fields": [
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "tier",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "category_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ],
+    "name": "projects/kmfi-945ef/databases/(default)/collectionGroups/SAAnswers/indexes/CICAgNja0ogK",
+    "queryScope": "COLLECTION",
+    "state": "READY"
+  },
+  {
+    "density": "SPARSE_ALL",
+    "fields": [
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "updated_at",
+        "order": "DESCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "DESCENDING"
+      }
+    ],
+    "name": "projects/kmfi-945ef/databases/(default)/collectionGroups/SAAnswers/indexes/CICAgJiHgokK",
+    "queryScope": "COLLECTION",
+    "state": "READY"
+  },
+  {
+    "density": "SPARSE_ALL",
+    "fields": [
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "cycle_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "updated_at",
+        "order": "DESCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "DESCENDING"
+      }
+    ],
+    "name": "projects/kmfi-945ef/databases/(default)/collectionGroups/SAAnswers/indexes/CICAgOi39IkK",
+    "queryScope": "COLLECTION",
+    "state": "READY"
+  },
+  {
+    "density": "SPARSE_ALL",
+    "fields": [
+      {
+        "fieldPath": "category_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "sort_order",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ],
+    "name": "projects/kmfi-945ef/databases/(default)/collectionGroups/SAQuestion/indexes/CICAgJiUzYsK",
+    "queryScope": "COLLECTION",
+    "state": "READY"
+  },
+  {
+    "density": "SPARSE_ALL",
+    "fields": [
+      {
+        "fieldPath": "category_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "sort_order",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ],
+    "name": "projects/kmfi-945ef/databases/(default)/collectionGroups/SAQuestions/indexes/CICAgOi3kJAK",
+    "queryScope": "COLLECTION",
+    "state": "READY"
+  },
+  {
+    "density": "SPARSE_ALL",
+    "fields": [
+      {
+        "fieldPath": "approved",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "category_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "cycle_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "updated_at",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ],
+    "name": "projects/kmfi-945ef/databases/(default)/collectionGroups/SAAnswers/indexes/CICAgJiH2JAK",
+    "queryScope": "COLLECTION",
+    "state": "READY"
+  },
+  {
+    "density": "SPARSE_ALL",
+    "fields": [
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "published",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "updated_at",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ],
+    "name": "projects/kmfi-945ef/databases/(default)/collectionGroups/IVCAnswers/indexes/CICAgLjyrJEK",
+    "queryScope": "COLLECTION",
+    "state": "READY"
+  },
+  {
+    "density": "SPARSE_ALL",
+    "fields": [
+      {
+        "fieldPath": "active",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "end_date",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ],
+    "name": "projects/kmfi-945ef/databases/(default)/collectionGroups/SACycles/indexes/CICAgNjaxJEK",
+    "queryScope": "COLLECTION",
+    "state": "READY"
+  },
+  {
+    "density": "SPARSE_ALL",
+    "fields": [
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "owner_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "owner_type",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "tier",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "created_at",
+        "order": "DESCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "DESCENDING"
+      }
+    ],
+    "name": "projects/kmfi-945ef/databases/(default)/collectionGroups/Comments/indexes/CICAgLiIjZIK",
+    "queryScope": "COLLECTION",
+    "state": "READY"
+  },
+  {
+    "density": "SPARSE_ALL",
+    "fields": [
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "updated_at",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ],
+    "name": "projects/kmfi-945ef/databases/(default)/collectionGroups/IVCAnswers/indexes/CICAgJiUsZIK",
+    "queryScope": "COLLECTION",
+    "state": "READY"
+  },
+  {
+    "density": "SPARSE_ALL",
+    "fields": [
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "category_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ],
+    "name": "projects/kmfi-945ef/databases/(default)/collectionGroups/SAAnswers/indexes/CICAgNi4-ZIK",
+    "queryScope": "COLLECTION",
+    "state": "READY"
+  },
+  {
+    "density": "SPARSE_ALL",
+    "fields": [
+      {
+        "fieldPath": "cycle_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "updated_at",
+        "order": "DESCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "DESCENDING"
+      }
+    ],
+    "name": "projects/kmfi-945ef/databases/(default)/collectionGroups/SAAnswers/indexes/CICAgLjRnZMK",
+    "queryScope": "COLLECTION",
+    "state": "READY"
+  },
+  {
+    "density": "SPARSE_ALL",
+    "fields": [
+      {
+        "fieldPath": "active",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "company_name",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ],
+    "name": "projects/kmfi-945ef/databases/(default)/collectionGroups/ParticipatingCompanies/indexes/CICAgNjp5ZMK",
+    "queryScope": "COLLECTION",
+    "state": "READY"
+  }
+]

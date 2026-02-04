@@ -493,6 +493,14 @@ module.exports.editCompanyDetails = (store) => async (req, res) => {
         presence: {allowEmpty: false},
         type: 'string',
       },
+      'size_category': {
+        presence: {allowEmpty: false},
+        type: 'string',
+        inclusion: {
+          within: ['SMALL', 'MEDIUM', 'LARGE'],
+          message: 'Provide a valid company size category.',
+        },
+      },
     };
 
     const errors = validate(req.body, constraints);
@@ -507,6 +515,7 @@ module.exports.editCompanyDetails = (store) => async (req, res) => {
     const company = await store.updateCompany(req.body['company-id'], {
       company_name: req.body['name'],
       company_size: req.body['company-size-id'],
+      size_category: req.body['size_category'],
     });
 
     return res.json({data: company});

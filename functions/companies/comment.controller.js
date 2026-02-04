@@ -3,9 +3,12 @@ const _ = require('lodash');
 const nodemailer = require('nodemailer');
 const {getFirebaseAdmin} = require('../index.admin');
 const {sendEmail} = require('../utils');
+const { getFirestore } = require('firebase-admin/firestore');
 
 const admin = getFirebaseAdmin();
-const globalStore = require('../store')(admin.firestore(), admin.auth());
+// Use the KMFI named Firestore database (databaseId: "kmfi")
+const kmfiFirestore = getFirestore(admin.app(), 'kmfi');
+const globalStore = require('../store')(kmfiFirestore, admin.auth());
 
 const smtpConfig = {
   host: process.env.SMTP_ENDPOINT,

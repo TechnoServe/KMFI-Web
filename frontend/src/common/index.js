@@ -10,6 +10,7 @@ import AdminSelfAssessment from 'pages/admin/self-assessment';
 import axios from 'axios';
 import Dashboard from 'pages/company/dashboard';
 import AdminDashboard from 'pages/admin/dashboard';
+import AdminDashboardV2 from 'pages/admin/dashboard-v2';
 import IvcAssessment from 'pages/ivc/self-assessment';
 
 /**
@@ -95,7 +96,7 @@ export const SUB_ROUTES = [
  * @type {Array<{path: string, page: React.ComponentType, exact: boolean}>}
  */
 export const ADMIN_SUB_ROUTES = [
-  {path: DASHBOARD, page: AdminDashboard, exact: true},
+  {path: DASHBOARD, page: AdminDashboardV2, exact: true},
   {path: ADMIN_SELF_ASSESSMENT, page: AdminSelfAssessment, exact: true},
   {path: SETTINGS, page: AdminSettings, exact: true},
   {path: COMPANIES_INDEX, page: AdminCompanyIndex, exact: true},

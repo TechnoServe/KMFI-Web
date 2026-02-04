@@ -1,12 +1,13 @@
 {
   "functions": {
-    "runtime": "nodejs18",
+    "runtime": "nodejs20",
     "predeploy": [
       "npm --prefix frontend run build"
     ],
     "source": "functions"
   },
   "hosting": {
+    "target": "kmfi",
     "public": "public",
     "headers": [
       { "source":"/service-worker.js", "headers": [{"key": "Cache-Control", "value": "no-cache"}] }
@@ -15,7 +16,7 @@
     "rewrites": [
       {
         "source": "/api/v1/**",
-        "function": "apiV1"
+        "function": "kmfiApiV1"
       },
       {
         "source": "**",

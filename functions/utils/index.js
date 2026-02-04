@@ -1,5 +1,8 @@
 const jwt = require('jsonwebtoken');
-const serviceAccFile = require('../auth-mfi-dev.json');
+// Legacy JWT signing secret (ONLY for backward compatibility during migration).
+// Do NOT use service-account private keys as HS256 secrets.
+const LEGACY_JWT_SECRET = process.env.LEGACY_JWT_SECRET;
+const {getFirebaseAdmin} = require('../index.admin');
 const validate = require('validate.js');
 const {firestore} = require('firebase-admin');
 const Busboy = require('busboy');
@@ -67,27 +70,51 @@ module.exports.sendEmail = (transport, params = {}) =>
   });
 
 /**
- * Creates and signs a JWT for a user with optional expiration time.
+ * Creates and signs a JWT for a user with optional expiration time and extra claims.
  *
  * @param {String} uid - User ID
- * @param {Number} [exp] - Optional expiration time (defaults to 1 hour from now)
+ * @param {Number} [exp] - Optional expiration time (defaults to 10 minutes from now)
+ * @param {Object} [extraClaims] - Extra claims to include (e.g., { apps: ["KMFI"] })
  * @returns {Promise<String>} - Resolves with signed JWT
  */
-module.exports.signJwtToken = (uid, exp = Math.floor(Date.now() / 1000) + 60 * 60) => {
-  const claims = {
-    alg: 'HS256',
-    iss: serviceAccFile.client_email,
-    sub: serviceAccFile.client_email,
-    aud: 'https://identitytoolkit.googleapis.com/google.identity.identitytoolkit.v1.IdentityToolkit',
-    exp, // defaults to 10 minutes
+module.exports.signJwtToken = (
+  uid,
+  exp = Math.floor(Date.now() / 1000) + 60 * 10,
+  extraClaims = {}
+) => {
+  console.log(`Signing JWT for uid: ${uid} with exp:`, exp, 'and extraClaims:', extraClaims);
+  if (!LEGACY_JWT_SECRET) {
+    throw new Error('LEGACY_JWT_SECRET is not set. Set it in Functions config / env for legacy JWT signing.');
+  }
+
+  // Minimal legacy payload. Add optional claims like `apps` for backward compatibility.
+  const payload = {
     uid,
+    ...extraClaims,
   };
 
-  const privateKey = serviceAccFile.private_key;
-  const options = {algorithm: 'HS256'};
+  // Standard JWT fields are set via options.
+  const options = {
+    algorithm: 'HS256',
+    // jsonwebtoken requires expiresIn to be an integer seconds value or a timespan string.
+    // Accept exp as seconds (preferred). If a millisecond timestamp is passed, convert it.
+    expiresIn: (() => {
+      const nowSec = Math.floor(Date.now() / 1000);
+      let expSec = typeof exp === 'number' ? exp : Number(exp);
+      if (!Number.isFinite(expSec)) return 60;
+      // If exp looks like a millisecond epoch (e.g., 1700000000000), convert to seconds.
+      if (expSec > 1e12) expSec = Math.floor(expSec / 1000);
+      expSec = Math.floor(expSec);
+      const ttl = expSec - nowSec;
+      return Math.max(ttl, 60);
+    })(),
+    issuer: process.env.JWT_ISSUER || 'ignite-program',
+    subject: String(uid),
+  };
+  console.log('JWT expiresIn (seconds):', options.expiresIn);
 
   return new Promise((resolve, reject) => {
-    jwt.sign(claims, privateKey, options, (err, token) => {
+    jwt.sign(payload, LEGACY_JWT_SECRET, options, (err, token) => {
       if (err) return reject(err);
       return resolve(token);
     });
@@ -103,20 +130,34 @@ module.exports.signJwtToken = (uid, exp = Math.floor(Date.now() / 1000) + 60 * 6
 module.exports.sanitizeEmailAddress = (email) => email.trim().toLowerCase();
 
 /**
- * Verifies a JWT using service account private key.
+ * Verifies an incoming bearer token.
  *
- * @param {string} token - JWT string to verify
- * @returns {Promise<Object>} - Decoded payload if successful
+ * Primary path: verify Firebase Auth ID token via Admin SDK (supports custom claims like `apps`).
+ * Fallback path: verify legacy locally-signed JWT (kept for backward compatibility during migration).
+ *
+ * @param {string} token - Bearer token (Firebase ID token recommended)
+ * @returns {Promise<Object>} - Decoded token payload
  */
-module.exports.verifyJwt = (token) =>
-  new Promise((resolve, reject) => {
-    const options = {algorithm: 'HS256'};
+module.exports.verifyJwt = async (token) => {
+  // 1) Preferred: Firebase Auth ID token
+  try {
+    const admin = getFirebaseAdmin();
+    const decoded = await admin.auth().verifyIdToken(token);
+    return decoded;
+  } catch (e) {
+    // Continue to fallback
+  }
 
-    jwt.verify(token, serviceAccFile.private_key, options, (err, payload) => {
+  // 2) Fallback: legacy locally signed JWT (does NOT include Firebase custom claims)
+  return new Promise((resolve, reject) => {
+    const options = {algorithm: 'HS256'};
+    if (!LEGACY_JWT_SECRET) return reject(new Error('LEGACY_JWT_SECRET is not set for legacy JWT verification'));
+    jwt.verify(token, LEGACY_JWT_SECRET, options, (err, payload) => {
       if (err) return reject(err);
       return resolve(payload);
     });
   });
+};
 
 /**
  * Converts a Firestore document snapshot to a plain JavaScript object,

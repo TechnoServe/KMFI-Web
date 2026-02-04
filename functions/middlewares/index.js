@@ -35,9 +35,20 @@ module.exports.authorization = (store) => async (req, res, next) => {
     let verifiedUserUid;
 
     try {
-      // Verify the JWT and extract user UID
-      const {uid} = await verifyJwt(token);
+      // Verify the JWT and extract user UID + custom claims
+      const decodedToken = await verifyJwt(token);
+      const {uid} = decodedToken;
       verifiedUserUid = uid;
+
+      // Enforce KMFI access via custom claims
+      const apps = decodedToken.apps || [];
+      console.log('Decoded JWT apps claim:', apps);
+      if (!Array.isArray(apps) || !apps.includes('KMFI')) {
+        return res.status(403).json({message: 'KMFI access required.'});
+      }
+
+      // Optionally expose decoded token to downstream handlers
+      req.auth = decodedToken;
     } catch (err) {
       const message = 'Failed to verify JWT.';
       console.error(message, err);

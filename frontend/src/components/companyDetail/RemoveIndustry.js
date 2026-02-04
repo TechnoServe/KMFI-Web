@@ -1,6 +1,6 @@
-import React from 'react';
+import React, {useState} from 'react';
 import propTypes from 'prop-types';
-import {useDisclosure} from '@chakra-ui/react';
+import {useDisclosure, useToast, Button} from '@chakra-ui/react';
 import {request} from 'common';
 import {
   Modal,
@@ -24,7 +24,9 @@ import {FiTrash} from 'react-icons/fi';
  */
 const RemoveIndustry = ({company}) => {
   // Hook to manage modal open/close state
-  const {isOpen, onClose} = useDisclosure();
+  const {isOpen, onOpen, onClose} = useDisclosure();
+  const toast = useToast();
+  const [isRemoving, setIsRemoving] = useState(false);
 
   /**
    * Sends a DELETE request to remove the company from the backend.
@@ -33,28 +35,55 @@ const RemoveIndustry = ({company}) => {
    * @returns {Promise<void>}
    */
   const removeCompany = async () => {
-    const res = await request(true).delete(`admin/company/delete/${company.id}`);
-    if (res.status === 200) {
-      setTimeout(() => {
-        location.reload();
-      }, 2000);
-      return toast({
-        status: 'success',
-        title: 'success',
-        position: 'top-right',
-        description: `${res.data.success}`,
-        duration: 6000,
-        isClosable: true,
-      });
-    } else {
+    console.log('Removing company:', company);
+    alert('Are you sure you want to remove this company? This action cannot be undone.');
+    if (!company?.id) {
       return toast({
         status: 'error',
         title: 'Error',
         position: 'top-right',
-        description: 'Something went wrong',
+        description: 'Missing company id',
         duration: 6000,
         isClosable: true,
       });
+    }
+    try {
+      setIsRemoving(true);
+      const res = await request(true).delete(`admin/company/delete/${company.id}`);
+      if (res.status === 200) {
+        toast({
+          status: 'success',
+          title: 'Success',
+          position: 'top-right',
+          description: `${res.data.success}`,
+          duration: 4000,
+          isClosable: true,
+        });
+        onClose();
+        setTimeout(() => {
+          location.reload();
+        }, 600);
+      } else {
+        toast({
+          status: 'error',
+          title: 'Error',
+          position: 'top-right',
+          description: 'Something went wrong',
+          duration: 6000,
+          isClosable: true,
+        });
+      }
+    } catch (err) {
+      toast({
+        status: 'error',
+        title: 'Error',
+        position: 'top-right',
+        description: err?.response?.data?.message || err?.message || 'Something went wrong',
+        duration: 6000,
+        isClosable: true,
+      });
+    } finally {
+      setIsRemoving(false);
     }
   };
 
@@ -63,7 +92,17 @@ const RemoveIndustry = ({company}) => {
   return (
     <>
       {/* Trigger for delete modal */}
-      <MenuItem value="delete" color="red" icon={<FiTrash color='red' />}>
+      <MenuItem
+        value="delete"
+        color="red"
+        icon={<FiTrash color='red' />}
+        closeOnSelect={false}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onOpen();
+        }}
+      >
         Delete
       </MenuItem>
       {/* Modal dialog for confirming company removal */}
@@ -95,15 +134,26 @@ const RemoveIndustry = ({company}) => {
             >
               {company?.company_name} will be removed from the Live Index.
             </Text>
-            <ModalFooter className="padding-y-6 padding-x-4 flex-justify-end background-secondary border-top-1px rounded-large bottom sticky-bottom-0">
-              <div>
-                {/* Action buttons for cancelling or confirming removal */}
-                <a className="button-secondary button-small margin-right-3 w-button">Cancel</a>
-                {/* Action buttons for cancelling or confirming removal */}
-                <a onClick={() => removeCompany()} className="button-danger button-small w-button">Confirm Remove</a>
-              </div>
-            </ModalFooter>
           </ModalBody>
+          <ModalFooter className="padding-y-6 padding-x-4 flex-justify-end background-secondary border-top-1px rounded-large bottom sticky-bottom-0">
+            <div>
+              {/* Action buttons for cancelling or confirming removal */}
+              <Button onClick={onClose} className="button-secondary button-small margin-right-3 w-button" size="sm" variant="outline">Cancel</Button>
+              {/* Action buttons for cancelling or confirming removal */}
+              <Button
+                onClick={(e) => {
+                  e.preventDefault(); e.stopPropagation(); removeCompany();
+                }}
+                className="button-danger button-small w-button"
+                size="sm"
+                colorScheme="red"
+                isLoading={isRemoving}
+                loadingText="Removing..."
+              >
+                Confirm Remove
+              </Button>
+            </div>
+          </ModalFooter>
         </ModalContent>
       </Modal>
     </>

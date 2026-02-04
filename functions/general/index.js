@@ -1,4 +1,5 @@
 const {sendEmail, signJwtToken, paginationConstraint, validate} = require('../utils');
+const admin = require('firebase-admin');
 const {ActivityLog} = require('../utils/activity-log');
 const {COLLECTIONS, ACTIVITY_LOG_ACTIONS, USER_TYPES} = require('../constants');
 
@@ -136,8 +137,17 @@ module.exports.login = (store, transport) => async (req, res) => {
       return res.status(401).json({error: 'Invalid credentials'});
     }
 
-    // Generate JWT token for user
-    const token = await signJwtToken(authUser.auth_provider_id);
+    // Generate legacy JWT token for user, including Firebase custom claims (e.g., apps)
+    let apps = [];
+    try {
+      const userRecord = await admin.auth().getUser(authUser.auth_provider_id);
+      console.log('Fetched user record from Firebase for login:', userRecord.toJSON());
+      apps = (userRecord.customClaims && userRecord.customClaims.apps) ? userRecord.customClaims.apps : [];
+    } catch (e) {
+      console.error('login:getUserClaims:error', e.message);
+    }
+
+    const token = await signJwtToken(authUser.auth_provider_id, undefined, {apps});
 
     // Construct login URL with token
     // TODO: Put URLs in a constant
@@ -149,7 +159,7 @@ module.exports.login = (store, transport) => async (req, res) => {
       from: process.env.TRANSACTIONAL_EMAIL_ADDRESS,
       to: email,
       subject: 'Technoserve KMFI Login Details',
-      html: `<div><a href="${url}">Click here to Login to KMFI Portal by TechnoServe:</a> You can also copy and paste the link below:<p>${url}</p</div>`,
+      html: `<div><a href="${url}">Click here to Login to KMFI Portal by TechnoServe:</a> You can also copy and paste the link below:<p>${url}</p></div>`,
     }).catch((err) => console.error(err));
 
     // Respond with success message
@@ -165,14 +175,16 @@ module.exports.login = (store, transport) => async (req, res) => {
 
 /**
  * (Deprecated) Returns all team members for the authenticated user's company.
- * @param {Function} firestore - Firestore instance getter.
+ * @param {Function} firestore - Firestore instance getter (optionally accepts databaseId).
  * @param {object} auth - Firebase admin auth instance.
  * @returns {Function} Express route handler
  */
 module.exports.viewTeamMembers = (firestore, auth) => async (req, res) => {
   try {
-    // Get Firestore DB instance
-    const db = firestore();
+    // Get Firestore DB instance (KMFI named database)
+    // NOTE: `firestore` is expected to be a getter that can accept an optional databaseId.
+    // If the implementation ignores the argument, this will still work and fall back to default.
+    const db = firestore('kmfi');
     // Extract companyId from authenticated user's document
     const {companyId} = req.userDoc;
     const result = [];
@@ -210,7 +222,18 @@ module.exports.viewTeamMembers = (firestore, auth) => async (req, res) => {
  */
 module.exports.getAuthUserInfo = (store) => async (req, res) => {
   // Sign new JWT token with 24h expiry
-  signJwtToken(req.user.auth_provider_id, Date.now() / 1000 + 60 * 60 * 24)
+  (async () => {
+    let apps = [];
+    try {
+      const userRecord = await admin.auth().getUser(req.user.auth_provider_id);
+      console.log('Fetched user record from Firebase for getAuthUserInfo:', userRecord.toJSON());
+      apps = (userRecord.customClaims && userRecord.customClaims.apps) ? userRecord.customClaims.apps : [];
+    } catch (e) {
+      console.error('getAuthUserInfo:getUserClaims:error', e.message);
+    }
+
+    return await signJwtToken(req.user.auth_provider_id, Date.now() / 1000 + 60 * 60 * 24, {apps});
+  })()
     .then(async (token) => {
       const user = req.user;
       // Fetch active SAT cycle from store
@@ -334,4 +357,28 @@ module.exports.listCompanyMembers = (store) => async (req, res) => {
 
   // Send 500 error if request not completed successfully
   res.status(500).json({message: 'Request not completed'});
+};
+
+/**
+ * Returns a paginated list of MFI Index company rankings.
+ * @param {Object} store - Data access object.
+ * @returns {Function} Express route handler.
+ */
+module.exports.indexRankingList = (store) => async (req, res) => {
+  try {
+    const { query } = req;
+
+    const errors = validate(query, paginationConstraint);
+    if (errors) return res.status(400).json({ errors });
+
+    const { before, after, 'page-size': size, 'cycle-id': cycleId } = query;
+
+    const results = await store.indexRankingList(before, after, +size, cycleId);
+
+    return res.json({ results });
+  } catch (error) {
+    const message = 'Failed to fetch index ranking list.';
+    console.error(message, error);
+    return res.status(500).json({ message });
+  }
 };

@@ -1,0 +1,660 @@
+[
+  {
+    "collectionGroup": "MicroNutrientScores",
+    "queryScope": "COLLECTION",
+    "fields": [
+      {
+        "fieldPath": "product_micro_nutrient_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "product_type",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ]
+  },
+  {
+    "collectionGroup": "ProductTesting",
+    "queryScope": "COLLECTION",
+    "fields": [
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "brand_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "product_type",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ]
+  },
+  {
+    "collectionGroup": "SAAnswers",
+    "queryScope": "COLLECTION",
+    "fields": [
+      {
+        "fieldPath": "category_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "updated_at",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ]
+  },
+  {
+    "collectionGroup": "AssessmentScores",
+    "queryScope": "COLLECTION",
+    "fields": [
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "cycle_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "category_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "type",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ]
+  },
+  {
+    "collectionGroup": "IVCAnswers",
+    "queryScope": "COLLECTION",
+    "fields": [
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "cycle_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "updated_at",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ]
+  },
+  {
+    "collectionGroup": "IVCAnswers",
+    "queryScope": "COLLECTION",
+    "fields": [
+      {
+        "fieldPath": "category_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "cycle_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "updated_at",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ]
+  },
+  {
+    "collectionGroup": "QuestionCategories",
+    "queryScope": "COLLECTION",
+    "fields": [
+      {
+        "fieldPath": "parent_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "sort_order",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ]
+  },
+  {
+    "collectionGroup": "SAAnswers",
+    "queryScope": "COLLECTION",
+    "fields": [
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "updated_at",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ]
+  },
+  {
+    "collectionGroup": "SAAnswers",
+    "queryScope": "COLLECTION",
+    "fields": [
+      {
+        "fieldPath": "approved",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "updated_at",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ]
+  },
+  {
+    "collectionGroup": "SAAnswers",
+    "queryScope": "COLLECTION",
+    "fields": [
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "cycle_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "updated_at",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ]
+  },
+  {
+    "collectionGroup": "SAAnswers",
+    "queryScope": "COLLECTION",
+    "fields": [
+      {
+        "fieldPath": "category_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "cycle_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "updated_at",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ]
+  },
+  {
+    "collectionGroup": "SAQuestion",
+    "queryScope": "COLLECTION",
+    "fields": [
+      {
+        "fieldPath": "category_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "tier_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "sort_order",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ]
+  },
+  {
+    "collectionGroup": "SAAnswers",
+    "queryScope": "COLLECTION",
+    "fields": [
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "cycle_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "tier",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "category_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ]
+  },
+  {
+    "collectionGroup": "ActivityLogs",
+    "queryScope": "COLLECTION",
+    "fields": [
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "created_at",
+        "order": "DESCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "DESCENDING"
+      }
+    ]
+  },
+  {
+    "collectionGroup": "ProductTesting",
+    "queryScope": "COLLECTION",
+    "fields": [
+      {
+        "fieldPath": "brand_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "cycle_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ]
+  },
+  {
+    "collectionGroup": "SAAnswers",
+    "queryScope": "COLLECTION",
+    "fields": [
+      {
+        "fieldPath": "approved",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "cycle_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "updated_at",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ]
+  },
+  {
+    "collectionGroup": "SAQuestion",
+    "queryScope": "COLLECTION",
+    "fields": [
+      {
+        "fieldPath": "tier_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "category_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ]
+  },
+  {
+    "collectionGroup": "Comments",
+    "queryScope": "COLLECTION",
+    "fields": [
+      {
+        "fieldPath": "created_at",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "owner_type",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ]
+  },
+  {
+    "collectionGroup": "SAAnswers",
+    "queryScope": "COLLECTION",
+    "fields": [
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "tier",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "category_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ]
+  },
+  {
+    "collectionGroup": "SAAnswers",
+    "queryScope": "COLLECTION",
+    "fields": [
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "updated_at",
+        "order": "DESCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "DESCENDING"
+      }
+    ]
+  },
+  {
+    "collectionGroup": "SAAnswers",
+    "queryScope": "COLLECTION",
+    "fields": [
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "cycle_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "updated_at",
+        "order": "DESCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "DESCENDING"
+      }
+    ]
+  },
+  {
+    "collectionGroup": "SAQuestion",
+    "queryScope": "COLLECTION",
+    "fields": [
+      {
+        "fieldPath": "category_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "sort_order",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ]
+  },
+  {
+    "collectionGroup": "SAQuestions",
+    "queryScope": "COLLECTION",
+    "fields": [
+      {
+        "fieldPath": "category_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "sort_order",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ]
+  },
+  {
+    "collectionGroup": "SAAnswers",
+    "queryScope": "COLLECTION",
+    "fields": [
+      {
+        "fieldPath": "approved",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "category_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "cycle_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "updated_at",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ]
+  },
+  {
+    "collectionGroup": "IVCAnswers",
+    "queryScope": "COLLECTION",
+    "fields": [
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "published",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "updated_at",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ]
+  },
+  {
+    "collectionGroup": "SACycles",
+    "queryScope": "COLLECTION",
+    "fields": [
+      {
+        "fieldPath": "active",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "end_date",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ]
+  },
+  {
+    "collectionGroup": "Comments",
+    "queryScope": "COLLECTION",
+    "fields": [
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "owner_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "owner_type",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "tier",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "created_at",
+        "order": "DESCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "DESCENDING"
+      }
+    ]
+  },
+  {
+    "collectionGroup": "IVCAnswers",
+    "queryScope": "COLLECTION",
+    "fields": [
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "updated_at",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ]
+  },
+  {
+    "collectionGroup": "SAAnswers",
+    "queryScope": "COLLECTION",
+    "fields": [
+      {
+        "fieldPath": "company_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "category_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ]
+  },
+  {
+    "collectionGroup": "SAAnswers",
+    "queryScope": "COLLECTION",
+    "fields": [
+      {
+        "fieldPath": "cycle_id",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "updated_at",
+        "order": "DESCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "DESCENDING"
+      }
+    ]
+  },
+  {
+    "collectionGroup": "ParticipatingCompanies",
+    "queryScope": "COLLECTION",
+    "fields": [
+      {
+        "fieldPath": "active",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "company_name",
+        "order": "ASCENDING"
+      },
+      {
+        "fieldPath": "__name__",
+        "order": "ASCENDING"
+      }
+    ]
+  }
+]

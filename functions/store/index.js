@@ -241,6 +241,23 @@ module.exports = (db, auth) => {
         return false;
       }
     },
+    makeAllCompaniesLarge: async () => {
+      try {
+        const companies = await db.collection(COLLECTIONS.PARTICIPATING_COMPANIES).get();
+        if (companies.empty) return false;
+
+        const batch = db.batch();
+        companies.forEach((company) => {
+          batch.update(company.ref, { size_category: 'LARGE' });
+        });
+
+        await batch.commit();
+        return true;
+      } catch (err) {
+        console.error('make all companies large', err);
+        return false;
+      }
+    },
     makeAllCommentsTier1: async () => {
       try {
         const comments = await db.collection(COLLECTIONS.COMMENTS).get();
@@ -624,6 +641,32 @@ module.exports = (db, auth) => {
         .collection(COLLECTIONS.COMPUTED_ASSESSMENT_SCORES)
         .where('company_id', '==', companyId);
       query = query.where('cycle_id', '==', cycleId);
+
+      const data = await query.get();
+
+      if (data.empty) return [];
+
+      return data.docs.map((doc) => docToObject(doc));
+    },
+    getComputedIEGScore: async (companyId, cycleId) => {
+      let query = db
+        .collection(COLLECTIONS.COMPUTED_ASSESSMENT_SCORES)
+        .where('company_id', '==', companyId);
+      query = query.where('cycle_id', '==', cycleId);
+      query = query.where('score_type', '==', "IEG");
+
+      const data = await query.get();
+
+      if (data.empty) return [];
+
+      return data.docs.map((doc) => docToObject(doc));
+    },
+    getComputedIVCScore: async (companyId, cycleId) => {
+      let query = db
+        .collection(COLLECTIONS.COMPUTED_ASSESSMENT_SCORES)
+        .where('company_id', '==', companyId);
+      query = query.where('cycle_id', '==', cycleId);
+      query = query.where('score_type', '==', "IVC");
 
       const data = await query.get();
 
@@ -1393,8 +1436,154 @@ module.exports = (db, auth) => {
       if (data.empty) return [];
 
       return data.docs.map(docToObject);
-    }
+    },
+    /**
+     * Retrieves all assessment scores for all companies from Firestore,
+     * filtered by cycle and optionally by type, with optional company info
+     * and category name enrichment.
+     * 
+     * @param {string} cycle - The assessment cycle ID (required).
+     * @param {string} [type] - Optional type to filter by (e.g., 'IEG', 'SAT', 'IVC').
+     * @param {boolean} [includeCompany=true] - Whether to include company info.
+     * @returns {Promise<Array<Object>>} Array of score records, each with `category_name` when available.
+     */
+    getAllAssessmentScores: async (cycle, type, includeCompany = true) => {
+      // Base query by cycle (and type, if provided)
+      let query = db.collection(COLLECTIONS.ASSESSMENT_SCORES).where('cycle_id', '==', cycle);
+      if (type) query = query.where('type', '==', type);
+
+      const snapshot = await query.get();
+      const rows = snapshot.docs.map(docToObject);
+
+      if (rows.length === 0) return rows;
+
+      // --- Enrich with category_name ---------------------------------------
+      const categoryIds = Array.from(new Set(rows.map((r) => r.category_id).filter(Boolean)));
+      let categoriesById = {};
+      if (categoryIds.length) {
+        try {
+          const categories = await store.getQuestionCategoriesByIds(categoryIds);
+          categoriesById = (categories || []).reduce((acc, c) => {
+            if (c && c.id) acc[c.id] = c;
+            return acc;
+          }, {});
+        } catch (e) {
+          console.error('getAllAssessmentScores: failed to load categories', e);
+        }
+      }
+
+      // If company enrichment is not requested, just attach category_name and return
+      if (!includeCompany) {
+        return rows.map((r) => ({
+          ...r,
+          category_name: categoriesById[r.category_id]?.name || null,
+        }));
+      }
+
+      // --- Enrich with company fields --------------------------------------
+      const companyIds = Array.from(new Set(rows.map((r) => r.company_id).filter(Boolean)));
+      let companiesById = {};
+      if (companyIds.length) {
+        const companies = await Promise.all(companyIds.map((id) => store.getCompanyById(id)));
+        companiesById = companies.reduce((acc, c) => {
+          if (c && c.id) acc[c.id] = c;
+          return acc;
+        }, {});
+      }
+
+      // Attach both company metadata and category_name
+      return rows.map((r) => {
+        const c = companiesById[r.company_id];
+        return {
+          ...r,
+          company_name: c?.company_name || null,
+          tier: c?.tier || null,
+          size_category: c?.size_category || null,
+          active: c?.active ?? null,
+          category_name: categoriesById[r.category_id]?.name || null,
+        };
+      });
+    },
+    /**
+ * Computes SAT variance per company for a cycle using the
+ * ComputedAssessmentScores collection (COMPUTED_ASSESSMENT_SCORES).
+ *
+ * Expected fields in COMPUTED_ASSESSMENT_SCORES:
+ *  - company_id (string)
+ *  - cycle_id (string)
+ *  - score_type ('SAT' | 'IVC' | ...)
+ *  - value (number)
+ *
+ * Only ACTIVE companies are returned (parity with previous behavior).
+ *
+ * @param {string} cycleId
+ * @returns {Promise<Array<Object>>} records: {
+ *   company_id, company_name, tier, company_size, selfScore, validatedScore,
+ *   variance, variancePct
+ * }
+ */
+    getSATVarianceByCompany: async (cycleId) => {
+      try {
+        // Fetch computed SAT & IVC scores for the given cycle
+        const snapshot = await db
+          .collection(COLLECTIONS.COMPUTED_ASSESSMENT_SCORES)
+          .where('cycle_id', '==', cycleId)
+          .where('score_type', 'in', ['SAT', 'IVC'])
+          .get();
+
+        if (snapshot.empty) return [];
+
+        const rows = snapshot.docs.map((d) => {
+          const r = docToObject(d);
+          return {
+            company_id: r.company_id,
+            score_type: String(r.score_type || '').toUpperCase(),
+            value: typeof r.value === 'number' ? r.value : Number(r.value) || 0,
+          };
+        });
+
+        const byCompany = _.groupBy(rows, 'company_id');
+
+        const results = await Promise.all(
+          Object.entries(byCompany).map(async ([company_id, items]) => {
+            const selfScore = items
+              .filter((r) => r.score_type === 'SAT')
+              .reduce((s, r) => s + r.value, 0);
+
+            const validatedScore = items
+              .filter((r) => r.score_type === 'IVC')
+              .reduce((s, r) => s + r.value, 0);
+
+            // Enrich with company metadata
+            const company = await store.getCompanyById(company_id);
+            if (!company || company.active !== true) return null;
+
+            const variance = Math.round(validatedScore) - Math.round(selfScore);
+            const variance2 = Math.abs(Math.round(validatedScore) - Math.round(selfScore));
+
+            return {
+              company_id,
+              company_name: company.company_name ?? null,
+              tier: company.tier ?? null,
+              company_size: company.size_category ?? null,
+              selfScore,
+              validatedScore,
+              variance,
+              variance2
+            };
+          })
+        );
+
+        return results.filter(Boolean);
+      } catch (err) {
+        console.error('getSATVarianceByCompany (computed) error:', err);
+        return [];
+      }
+    },
+    
+    
   };
+  
 
   store.getUserAssignedCompaniesIds = async (userId) => {
     let allotations = await db.collection(COLLECTIONS.ALLOTATIONS).where('user_id', '==', userId).select('company_id').get();
@@ -1416,6 +1605,21 @@ module.exports = (db, auth) => {
       const doAdjustedScores = (micronutrient, productType, compliance) => {
         switch (micronutrient) {
           case 'Vitamin A':
+            // Special rules for Edible Oils (product type ID: AH6CGJnP5KxdmXRnV1Ez)
+            // Edible Oils — Weighted Scores:
+            // 100%–200% => 30
+            // 80%–99%   => 25
+            // 51%–79% OR up to 10% over Max (201%–220%) => 15
+            // 31%–50% OR 11%–20% over Max (221%–240%)  => 10
+            // Below 31% OR &gt;20% over Max (&gt;240%)  => 0
+            if (productType === 'AH6CGJnP5KxdmXRnV1Ez') {
+              if (compliance >= 100) return 30;
+              if (compliance >= 80)  return 25;
+              if (compliance >= 51)  return 15;
+              if (compliance >= 31)  return 10;
+              return 0;
+            }
+            // Default logic (e.g., Wheat/Maize Flour product types)
             return compliance >= 451
               ? productType == '7solPkqUcOabROFd5Lgt' || productType == 'XjGrnod6DDbJFVxtZDkD'
                 ? 0
@@ -1516,6 +1720,24 @@ module.exports = (db, auth) => {
       const doAdjustedScores = (micronutrient, productType, compliance) => {
         switch (micronutrient) {
           case 'Vitamin A':
+            // Special rules for Edible Oils (product type ID: AH6CGJnP5KxdmXRnV1Ez)
+            // Edible Oils — Weighted Scores:
+            // 100%–200% => 30
+            // 80%–99%   => 25
+            // 51%–79% OR up to 10% over Max (201%–220%) => 15
+            // 31%–50% OR 11%–20% over Max (221%–240%)  => 10
+            // Below 31% OR &gt;20% over Max (&gt;240%)  => 0
+            if (productType === 'AH6CGJnP5KxdmXRnV1Ez') {
+              if (compliance > 240) return 0;
+              if (compliance >= 221) return 10;
+              if (compliance >= 201) return 15;
+              if (compliance >= 100) return 30;
+              if (compliance >= 80)  return 25;
+              if (compliance >= 51)  return 15;
+              if (compliance >= 31)  return 10;
+              return 0;
+            }
+            // Default logic (e.g., Wheat/Maize Flour product types)
             return compliance >= 451
               ? productType == '7solPkqUcOabROFd5Lgt' || productType == 'XjGrnod6DDbJFVxtZDkD'
                 ? 0
@@ -1791,6 +2013,8 @@ module.exports = (db, auth) => {
   };
 
   store.rankingList = async (before, after, size = 15, cycleId=0) => {
+    console.log('Firestore project:', db._settings.projectId);
+    console.log('Firestore database:', db._settings.databaseId);
     const companies = await store.getCompanies(before, after, size);
     // const activeCyle = await store.getActiveSATCycle();
     const cid = (cycleId !=0)
@@ -1805,6 +2029,34 @@ module.exports = (db, auth) => {
         return store.getCompanyAggsScore(doc.id, cid, null, true);
       })
     );
+  };
+
+  /**
+   * Retrieves a ranking list of companies with aggregate scores for a cycle.
+   * @param {string|null} before - Document ID to end before.
+   * @param {string|null} after - Document ID to start after.
+   * @param {number} size - Page size.
+   * @param {string|number} cycle_id - Cycle ID or 0 for active.
+   * @returns {Promise<Object[]>} Array of company aggregate score objects.
+   */
+  store.indexRankingList = async (before, after, size = 15, cycle_id = 0) => {
+    const companies = await store.getCompanies(before, after, size);
+    //const activeCyle = await store.getActiveSATCycle();
+    const cycleId = (cycle_id != 0)
+      ? cycle_id
+      : (await store.getActiveSATCycle()).id;
+
+    if (companies.length < 1) return [];
+
+    let data = [];
+    // Fetch all company aggregate scores in parallel and then push to data array
+    await Promise.all(
+      companies.map(async (doc) => {
+        const score = await store.getCompanyAggsScoreV3(doc.id, cycleId);
+        data.push(...score);
+      })
+    );
+    return data;
   };
 
   store.getQuestionCategoriesByIds = async (categoryIds = []) => {
@@ -2056,6 +2308,76 @@ module.exports = (db, auth) => {
     );
   };
 
+/**
+ * Retrieve all product testing entries for a given cycle, enriched with
+ * company, brand, product type, and micronutrient result details.
+ * Also computes an Overall MFI Fortification Result (Average) per entry.
+ *
+ * Collections & fields (per your data):
+ *  - PRODUCT_TESTING: brand_id, company_id, cycle_id, product_type, micro_nutrients_results (array or JSON string), fortification
+ *  - COMPANY_BRANDS: name (brand name), product_type
+ *  - PRODUCT_TYPES: name, value, aflatoxin, aflatoxin_max_permitted
+ *  - MICRO_NUTRIENTS_SCORES: mfiScore, percentage_compliance, product_micro_nutrient_id, product_type, company_id, cycle_id
+ *
+ * @param {string|null} cycleId - Optional cycle ID to filter by. If null, returns all.
+ * @returns {Promise<Array<Object>>}
+ */
+store.getAllProductTests = async (cycleId = null) => {
+  try {
+    let query = db.collection(COLLECTIONS.PRODUCT_TESTING);
+    if (cycleId) query = query.where('cycle_id', '==', cycleId);
+
+    const snapshot = await query.get();
+    if (snapshot.empty) return [];
+
+    const rows = await Promise.all(
+      snapshot.docs.map(async (doc) => {
+        const data = docToObject(doc);
+
+        // micro_nutrients_results may be stored as an array or a JSON string
+        let scoreIds = data.micro_nutrients_results;
+        if (typeof scoreIds === 'string') {
+          try { scoreIds = JSON.parse(scoreIds); } catch (_) { scoreIds = []; }
+        }
+        if (!Array.isArray(scoreIds)) scoreIds = [];
+
+        const [company, brand, productType, results] = await Promise.all([
+          store.getCompanyById(data.company_id),
+          store.getBrandById(data.brand_id),
+          store.getProductTypeById(data.product_type),
+          store.getProductMicroNutrientScores(scoreIds, data.product_type),
+        ]);
+
+        // Compute average MFI (0–30 each) across resolved micronutrient scores
+        const mfiScores = Array.isArray(results) ? results.map((r) => Number(r.mfiScore) || 0) : [];
+        const overall = mfiScores.length
+          ? +(mfiScores.reduce((s, n) => s + n, 0) / mfiScores.length).toFixed(2)
+          : 0;
+
+        const productTypeName = (productType?.name || productType?.value || '').replace(/^\"|\"$/g, '');
+
+        return {
+          ..._.omit(data, ['micro_nutrients_results']),
+          id: data.id || doc.id,
+          company_name: company?.company_name ?? null,
+          company_size: company?.size_category ?? null, // COMPANY.company_size
+          brand_name: brand?.name ?? null, // COMPANY_BRANDS.name
+          brand_active: brand?.active ?? null, // COMPANY_BRANDS.status
+          product_type_id: data.product_type || null,
+          product_type_name: productTypeName,
+          results,
+          overall_mfi_average: overall,
+        };
+      })
+    );
+
+    return rows;
+  } catch (err) {
+    console.error('store.getAllProductTests error:', err);
+    return [];
+  }
+};
+
   store.getCompanyAggsScore = async (companyId, cycleId = null, user = null, showUnpublished = false) => {
     const company = await store.getCompanyById(companyId);
 
@@ -2116,6 +2438,43 @@ module.exports = (db, auth) => {
       brands,
       computedScores
     };
+  };
+  /**
+   * Retrieves aggregate scores for a company for a cycle (and optionally user).
+   * @param {string} companyId - Company ID.
+   * @param {string|null} cycleId - Cycle ID.
+   * @param {Object|null} user - Optional user object.
+   * @returns {Promise<Object>} Aggregate score object for the company.
+   */
+  store.getCompanyAggsScoreV3 = async (companyId, cycleId = null, user = null) => {
+    const company = await store.getCompanyById(companyId);
+
+    if (!company) return company;
+
+    const computedIEGScore = await store.getComputedIEGScore(companyId, cycleId, user);
+    console.log('Computed IEG Score', computedIEGScore);
+    const computedIVCScore = await store.getComputedIVCScore(companyId, cycleId, user);
+    console.log('Computed IVC Score', computedIVCScore);
+
+    const iegTotal = computedIEGScore.reduce((accum, {value}) => accum + value, 0) * 0.2;
+    const ivcTotal = computedIVCScore.reduce((accum, {value}) => accum + value, 0) * 0.5;
+
+    let brands = await store.getCompanyBrands(companyId);
+
+    brands = await Promise.all(
+      brands.map(async (brand) => ({
+        ..._.omit(company, ['company_size', 'created_at', 'updated_at']),
+        ..._.omit(brand, ['product_type', 'created_at', 'updated_at']),
+        productTests: await store.getBrandProductTests(brand.id, cycleId),
+        productType: await store.getProductTypeById(brand.product_type),
+        ieg: iegTotal,
+        ivc: ivcTotal
+      }))
+    );
+
+
+
+    return brands;
   };
 
   store.saveProductTesting = async (payload) => {
@@ -2561,7 +2920,7 @@ module.exports = (db, auth) => {
 
       const spreadsheetId = spreadsheet.spreadsheetId;
       const spreadsheetUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}`;
-      const email = 'mmaingi@tns.org';
+      const email = 'tdurotoye@tns.org';
 
       // === Grant Access to Email ===
       await drive.permissions.create({

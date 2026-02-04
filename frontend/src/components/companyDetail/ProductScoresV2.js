@@ -154,7 +154,7 @@ const ProductScoreCardV2 = ({company, cycleId}) => {
                   </Button>
                 </Box>
 
-                <ProductModalHeaderV2 key={nanoid()} productTests={productTests} productType={productType} cycleId={cycleId} />
+                <ProductModalHeaderV2 key={nanoid()} productTests={productTests} productType={productType} cycleId={cycleId} brandName={brands[0]?.name} />
               </Stack>
 
             )}
@@ -167,6 +167,7 @@ const ProductScoreCardV2 = ({company, cycleId}) => {
           onClose={onDrawerClose}
           productType={productType}
           brandId={brands[0]?.id}
+          brandName={brands[0]?.name}
           productMicroNutrients={productMicroNutrients}
           companyId={company?.id}
           cycleId={cycleId}

@@ -63,7 +63,8 @@ import EditScoreDrawer from './editScoreDrawer';
  * @param {string} props.cycleId - ID of the current assessment cycle
  * @returns {JSX.Element} Accordion-style UI with edit/delete controls and results display
  */
-const ProductModalHeaderV2 = ({productTests, uniqueBrands, productType, cycleId}) => {
+const ProductModalHeaderV2 = ({productTests, uniqueBrands, productType, brandName, cycleId}) => {
+  console.log('productTests', productTests);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [btnLoad, setBtnLoading] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -229,7 +230,7 @@ const ProductModalHeaderV2 = ({productTests, uniqueBrands, productType, cycleId}
 
       {/* Edit drawer for updating selected test result */}
       {isDrawerOpen &&
-      <EditScoreDrawer isOpen={isDrawerOpen} onClose={onDrawerClose} selectedProduct={selectedProduct} productType={productType} cycleId={cycleId} />
+      <EditScoreDrawer isOpen={isDrawerOpen} onClose={onDrawerClose} selectedProduct={selectedProduct} productType={productType} brandName={brandName} cycleId={cycleId} />
       }
       {/* AlertDialog to confirm deletion of selected test result */}
       <AlertDialog
@@ -267,6 +268,7 @@ ProductModalHeaderV2.propTypes = {
   productTests: propTypes.any,
   uniqueBrands: propTypes.any,
   productType: propTypes.any,
+  brandName: propTypes.string,
   cycleId: propTypes.any
 };
 

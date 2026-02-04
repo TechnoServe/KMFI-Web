@@ -140,9 +140,9 @@ const CompanyDashboard = ({cycle, company}) => {
       } = await request(true).get(`/sat/scores?company-id=${company.id}&cycle-id=${cycle.id}&previous-id=${cycle.previous_id}`);
       setScores(res.current.sort((a, b) => a.sort_order - b.sort_order));
       setPreviousScores(res.previous.sort((a, b) => a.sort_order - b.sort_order));
-      setLoading(false);
+      // setLoading(false); // handled centrally
     } catch (error) {
-      setLoading(false);
+      // setLoading(false); // handled centrally
     }
   };
 
@@ -165,7 +165,7 @@ const CompanyDashboard = ({cycle, company}) => {
       }
     } catch (error) {
       console.log('SATScoresError', error);
-      setLoading(false);
+      // setLoading(false); // handled centrally
       return toast({
         status: 'error',
         title: 'Error',
@@ -191,7 +191,7 @@ const CompanyDashboard = ({cycle, company}) => {
 
       setIEGData(res);
     } catch (error) {
-      setLoading(false);
+      // setLoading(false); // handled centrally
     }
   };
 
@@ -209,7 +209,7 @@ const CompanyDashboard = ({cycle, company}) => {
       setPTDataPrevious(res.previous);
     } catch (error) {
       console.log('PTScoresError', error);
-      setLoading(false);
+      // setLoading(false); // handled centrally
       return toast({
         status: 'error',
         title: 'Error',
@@ -221,14 +221,26 @@ const CompanyDashboard = ({cycle, company}) => {
     }
   };
 
-  useEffect(async () => {
-    // Initial data fetch on mount or user change
-    await getCompanyDetails();
-    await getTestScores();
-    await getSATScores();
-    await getIEGScores();
-    await getPTScores();
-  }, [user]);
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    (async () => {
+      try {
+        await Promise.allSettled([
+          getCompanyDetails(),
+          getTestScores(),
+          getSATScores(),
+          getIEGScores(),
+          getPTScores(),
+        ]);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [company?.id, cycle?.id]);
 
   useEffect(() => {
     // Updates dashboard charts and state when SAT, IEG, IVC, PT data or scores change
@@ -240,12 +252,25 @@ const CompanyDashboard = ({cycle, company}) => {
         : [];
 
     setCompanyBrandDetails(filteredCompanyBrand);
-    setBrand(filteredCompanyBrand[0]?.brands[0]?.id);
-    setProductTestingChart((filteredCompanyBrand[0]?.brands[0]?.productTests[0]?.fortification?.score));
-    setBrandName(filteredCompanyBrand[0]?.brands[0]?.name);
-    if (filteredCompanyBrand[0]?.brands[0]?.productType.aflatoxin) {
-      const overallKMFIWeightedScore = filteredCompanyBrand[0]?.brands[0]?.productTests[0]?.fortification?.overallKMFIWeightedScore;
+
+    // Don’t clobber user selection; default to first brand only if none selected yet
+    const brandsArr = filteredCompanyBrand[0]?.brands || [];
+    const currentBrandId = brandDropDown || brandsArr[0]?.id;
+    if (!brandDropDown && currentBrandId) {
+      setBrand(currentBrandId);
+    }
+
+    // Pick the selected brand object
+    const selectedBrandObj = brandsArr.find((b) => b.id === currentBrandId) || brandsArr[0];
+    setBrandName(selectedBrandObj?.name || '');
+
+    // Use the newest PT entry for the selected brand
+    const firstPT = selectedBrandObj?.productTests?.[0];
+    if (selectedBrandObj?.productType?.aflatoxin) {
+      const overallKMFIWeightedScore = firstPT?.fortification?.overallKMFIWeightedScore;
       setProductTestingChart(overallKMFIWeightedScore);
+    } else {
+      setProductTestingChart(firstPT?.fortification?.score);
     }
     const satScoresArr = [];
     const satTotalScoreArr = [];
@@ -283,21 +308,24 @@ const CompanyDashboard = ({cycle, company}) => {
     // Product Test
     if (filteredCompanyBrand.length > 0 && filteredCompanyBrand[0].brands.length > 0) {
       const brands = filteredCompanyBrand[0].brands;
+      const selected = brands.find((b) => b.id === currentBrandId) || brands[0];
 
-      setAflatoxin(brands[0].productType.aflatoxin);
-      setProductTestData(brands[0].productTests);
+      setAflatoxin(selected?.productType?.aflatoxin);
+      setProductTestData(selected?.productTests || []);
 
-      const aflaScore = brands[0].productTests[0]?.aflatoxinScore;
-      setAflatoxinData([
-        {name: 'Group B', value: aflaScore, color: '#04B279'},
-        {name: 'Group A', value: 100 - aflaScore, color: '#f8f8fa'},
-      ]);
-      if (filteredCompanyBrand[0]?.brands[0]?.productTests.length > 0) {
-        setPTTotalScore(filteredCompanyBrand[0]?.brands[0]?.productTests[0]?.fortification?.score);
-        if (brands[0].productType.aflatoxin) {
-          const overallKMFIWeightedScore = filteredCompanyBrand[0]?.brands[0]?.productTests[0]?.fortification?.overallKMFIWeightedScore;
-          setPTTotalScore(overallKMFIWeightedScore);
-        }
+      const aflaScore = selected?.productTests?.[0]?.aflatoxinScore;
+      if (typeof aflaScore === 'number') {
+        setAflatoxinData([
+          {name: 'Group B', value: aflaScore, color: '#04B279'},
+          {name: 'Group A', value: 100 - aflaScore, color: '#f8f8fa'},
+        ]);
+      }
+      if (selected?.productTests?.length > 0) {
+        const baseScore = selected?.productTests?.[0]?.fortification?.score;
+        const weighted = selected?.productType?.aflatoxin
+          ? selected?.productTests?.[0]?.fortification?.overallKMFIWeightedScore
+          : baseScore;
+        setPTTotalScore(weighted ?? 0);
       }
     }
     const iegScoresArr = [];
@@ -335,7 +363,7 @@ const CompanyDashboard = ({cycle, company}) => {
     }
 
 
-    const newIVCData = companyBrandDetails[0]?.ivcScores;
+    const newIVCData = filteredCompanyBrand[0]?.ivcScores;
     const ivcScoresArr = [];
     const ivcTotalScoreArr = [];
     if (newIVCData?.length > 0) {
@@ -375,7 +403,7 @@ const CompanyDashboard = ({cycle, company}) => {
     setCompanyIVCScores(ivcScoresArr);
 
     // Brands SAT Charts
-    const selfAssessmentBrand = companyBrandDetails?.filter((brand) => brand.brands.find((x) => x.id === brandDropDown));
+    const selfAssessmentBrand = filteredCompanyBrand?.filter((brand) => brand.brands.find((x) => x.id === brandDropDown));
     // Tier One Breakdown
     const tierOneSABrand = selfAssessmentBrand?.filter((x) => x?.tier?.includes('TIER_1'));
     console.log('tierOneSABrand', tierOneSABrand);
@@ -409,7 +437,7 @@ const CompanyDashboard = ({cycle, company}) => {
     }
 
     // Brands IEG Charts
-    const industryExpertGroupBrand = companyBrandDetails?.filter((brand) => brand.brands.find((x) => x.id === brandDropDown));
+    const industryExpertGroupBrand = filteredCompanyBrand?.filter((brand) => brand.brands.find((x) => x.id === brandDropDown));
 
     const culIndustryExpertBrand = industryExpertGroupBrand?.map((x) => x.iegScores?.map((x) => x.value).reduce(function (accumulator, currentValue) {
       return accumulator + currentValue;
@@ -423,7 +451,7 @@ const CompanyDashboard = ({cycle, company}) => {
 
 
     // Brands PT Charts
-    const productTestingBrand = companyBrandDetails?.filter((brand) => brand.brands.find((x) => x.id === brandDropDown));
+    const productTestingBrand = filteredCompanyBrand?.filter((brand) => brand.brands.find((x) => x.id === brandDropDown));
     console.log('productTestingBrand', productTestingBrand);
     const latestProductTestingBrand = productTestingBrand?.map(((x) => x.brands.map((x) => {
       const productType = x.productType;
@@ -443,19 +471,28 @@ const CompanyDashboard = ({cycle, company}) => {
     let averagePTTesting = 0;
 
     if (brandTesting[0]?.productType?.aflatoxin) {
-      PTTesting = brandTesting[0]?.productTests.fortification?.overallKMFIWeightedScore;
+      if (brandTesting[0]?.productTests != null && brandTesting[0]?.productTests.length !== 0) {
+        PTTesting = brandTesting[0]?.productTests?.fortification?.overallKMFIWeightedScore;
+      }
     } else {
-      PTTesting = brandTesting[0]?.productTests.fortification?.score;
+      if (brandTesting[0]?.productTests != null && brandTesting[0]?.productTests.length !== 0) {
+        PTTesting = brandTesting[0]?.productTests?.fortification?.score;
+      }
     }
 
-    latestProductTestingBrand[0]?.map((x) => {
+    (latestProductTestingBrand?.[0] || []).map((x) => {
       if (x.productType.aflatoxin) {
-        averagePTTesting = averagePTTesting + x.productTests.fortification?.overallKMFIWeightedScore;
+        if (x.productTests && x.productTests.length !== 0) {
+          averagePTTesting = averagePTTesting + x.productTests?.fortification?.overallKMFIWeightedScore;
+        }
       } else {
-        averagePTTesting = averagePTTesting + x.productTests.fortification?.score;
+        if (x.productTests && x.productTests.length !== 0) {
+          averagePTTesting = averagePTTesting + x.productTests?.fortification?.score;
+        }
       }
     });
-    averagePTTesting = averagePTTesting / companyBrandDetails[0]?.brands.length;
+    const brandsLen = filteredCompanyBrand[0]?.brands?.length || 0;
+    averagePTTesting = brandsLen ? (averagePTTesting / brandsLen) : 0;
 
     const satValueBrand = parseInt(SABrandsTierThree) === 0 ?
       parseInt(SABrandsTierOne) :
@@ -491,7 +528,15 @@ const CompanyDashboard = ({cycle, company}) => {
     };
     loadData();
     // Compliance Score
-  }, [satData, iegData, ivcData, ptData, previousScores, ptDataPrevious, overallWeightedScore, setAflatoxinData, , setPTDataPrevious, setPTData]);
+  }, [
+    satData,
+    iegData,
+    ivcData,
+    ptData,
+    previousScores,
+    ptDataPrevious,
+    brandDropDown,
+  ]);
 
   /**
    * Updates dashboard state and chart data when a different product brand is selected.
@@ -509,11 +554,74 @@ const CompanyDashboard = ({cycle, company}) => {
     setBrandName(d?.name);
     setAflatoxin(d?.productType.aflatoxin);
     setProductTestData(d?.productTests);
+
     if (d?.productType.aflatoxin) {
       setAflatoxinData([
         {name: 'Group B', value: d?.productTests[0]?.aflatoxinScore, color: '#04B279'},
         {name: 'Group A', value: 100 - d?.productTests[0]?.aflatoxinScore, color: '#f8f8fa'},
       ]);
+    }
+
+    // --- Instant recompute of Overall Weighted Score on brand change ---
+    const nextPTTotal = d?.productType?.aflatoxin
+      ? (d?.productTests?.[0]?.fortification?.overallKMFIWeightedScore ?? 0)
+      : (d?.productTests?.[0]?.fortification?.score ?? 0);
+    // setPTTotalScore(nextPTTotal);
+
+    // Use validated SAT total if available, else fallback to SAT self-assessment total
+    const satValueInstant = (typeof ivcTotalScore !== 'undefined' && ivcTotalScore !== null)
+      ? ivcTotalScore
+      : satTotalScore;
+
+    const ptWeightedInstant = (nextPTTotal / 100) * 30;
+    const iegWeightedInstant = (iegTotalScore / 100) * 20;
+    const satWeightedInstant = (satValueInstant / 100) * 50;
+    const overallInstant = ptWeightedInstant + iegWeightedInstant + satWeightedInstant;
+
+    console.log('overallInstant', overallInstant);
+    setOverallWeightedScore(overallInstant);
+    setOverviewData([
+      {name: 'Group B', value: overallInstant, color: '#04B279'},
+      {name: 'Group A', value: 100 - overallInstant, color: '#f8f8fa'},
+    ]);
+
+    // --- Instant recompute of Average Overall Weighted Score (company-wide average) ---
+    // Average PT across all brands (latest test per brand), then combine with IEG and SAT
+    try {
+      const brands = companyBrandDetails?.[0]?.brands || [];
+      let sumPT = 0;
+      let countPT = 0;
+      for (const b of brands) {
+        const pts = Array.isArray(b?.productTests) ? b.productTests.slice() : [];
+        if (!pts.length) continue;
+        // newest test by sample_production_date (fallback: leave order as-is)
+        pts.sort((a, b) => {
+          const ad = a?.sample_production_date ? new Date(a.sample_production_date).getTime() : 0;
+          const bd = b?.sample_production_date ? new Date(b.sample_production_date).getTime() : 0;
+          return bd - ad;
+        });
+        const latest = pts[0];
+        const ptVal = b?.productType?.aflatoxin
+          ? latest?.fortification?.overallKMFIWeightedScore
+          : latest?.fortification?.score;
+        if (typeof ptVal === 'number' && isFinite(ptVal)) {
+          sumPT += ptVal;
+          countPT += 1;
+        }
+      }
+      const avgPT = countPT ? (sumPT / countPT) : 0;
+
+      const avgPtWeighted = (avgPT / 100) * 30;
+      const avgIegWeighted = (iegTotalScore / 100) * 20; // company-level IEG already aggregated
+      const avgSatWeighted = (satValueInstant / 100) * 50; // validated SAT (IVC) preferred when available
+      const avgOverallInstant = avgPtWeighted + avgIegWeighted + avgSatWeighted;
+
+      setAverageOverviewData([
+        {name: 'Group B', value: avgOverallInstant, color: '#04B279'},
+        {name: 'Group A', value: 100 - avgOverallInstant, color: '#f8f8fa'},
+      ]);
+    } catch (e) {
+      // swallow; average card will be computed by the effect as a fallback
     }
   };
 
@@ -571,7 +679,7 @@ const CompanyDashboard = ({cycle, company}) => {
       <div className="background-color-white padding-x-10 padding-y-6 border-bottom-1px sticky-top-0 flex-row-middle flex-space-between">
         <div className="flex items-center">
           <img
-            src={`https://ui-avatars.com/api/?background=random&name=${companyDetails?.company_name.trim()}$rounded=true`}
+            src={`https://ui-avatars.com/api/?background=random&name=${(companyDetails?.company_name ?? '').trim()}&rounded=true`}
             loading="lazy"
             width="48"
             style={{borderRadius: '50%'}}

@@ -16,7 +16,7 @@ import 'styles/webflow.css';
 import 'styles/mfi-tns.webflow.css';
 import 'styles/normalize.css';
 import {request} from 'common';
-import {FiEdit} from 'react-icons/fi';
+import {FiEdit, FiTrash} from 'react-icons/fi';
 import RemoveIndustry from 'components/companyDetail/RemoveIndustry';
 import IndustryPermissionRequest from 'components/companyDetail/IndustryPermissionRequest';
 import ComputeSATScores from 'components/companyDetail/ComputeSATScores';
@@ -458,6 +458,34 @@ const Companies = () => {
       });
     }
   };
+  const removeCompany = (company) => {
+    if (!loading) {
+      setLoading(true);
+      request(true).delete(`admin/company/delete/${company.id}`).then((response) => {
+        setLoading(false);
+        console.log('removeCompany', response);
+        return toast({
+          status: 'success',
+          title: 'Success',
+          position: 'top-right',
+          description: 'Company removed successfully',
+          duration: 6000,
+          isClosable: true,
+        });
+      }).catch((error) => {
+        console.log('removeCompany', error);
+        setLoading(false);
+        return toast({
+          status: 'error',
+          title: 'Error',
+          position: 'top-right',
+          description: 'Error removing company',
+          duration: 6000,
+          isClosable: true,
+        });
+      });
+    }
+  };
   /**
    * Fetches company scores for SAT, PT, and IEG, and prepares downloadable CSV data.
    *
@@ -675,7 +703,7 @@ const Companies = () => {
                     width="18%"
                     className="margin-right-2 flex-align-center tablet-width-full"
                   >
-                    SAT Scores
+                    SAT & IVC Scores
                   </Box>
                   <Box
                     flex="0 0 auto"
@@ -734,7 +762,14 @@ const Companies = () => {
 
 
                               {user?.admin_user?.role?.value === 'nuclear_admin' ? (
-                                <RemoveIndustry key={nanoid()} company={company} />
+                                <MenuItem
+                                  value="delete"
+                                  color="red"
+                                  icon={<FiTrash color='red' />}
+                                  onClick={() => removeCompany(company)}
+                                >
+                                        Delete
+                                </MenuItem>
                               ) : (
                                 ''
                               )}
@@ -774,7 +809,7 @@ const Companies = () => {
                               <span>
                                 {company?.computedScores
                                   ?.find((o) => o.score_type === 'SAT')
-                                  ?.value.toFixed()}
+                                  ?.value?.toFixed()}
                                 %
                               </span>
                             </Tooltip>
@@ -782,7 +817,7 @@ const Companies = () => {
                               <span>
                                 {company?.computedScores
                                   ?.find((o) => o.score_type === 'SAT_COMPLETION')
-                                  ?.value.toFixed()}
+                                  ?.value?.toFixed()}
                                 %
                               </span>
                             </Tooltip>
@@ -790,7 +825,15 @@ const Companies = () => {
                               <span>
                                 {company?.computedScores
                                   ?.find((o) => o.score_type === 'IVC')
-                                  ?.value.toFixed()}
+                                  ?.value?.toFixed()}
+                                %
+                              </span>
+                            </Tooltip>
+                            <Tooltip hasArrow label="IVC Completion">
+                              <span>
+                                {company?.computedScores
+                                  ?.find((o) => o.score_type === 'IVC_COMPLETION')
+                                  ?.value?.toFixed()}
                                 %
                               </span>
                             </Tooltip>
@@ -804,7 +847,7 @@ const Companies = () => {
                               />
                               <MenuList>
                                 {user.admin_user.role.value === 'nuclear_admin' ||
-                                user.admin_user.role.value === 'super_admin' ? (
+                                  user.admin_user.role.value === 'super_admin' || user.admin_user.role.value ? (
                                       <IndustryPermissionRequest
                                         key={nanoid()}
                                         permissionRequest={company}
@@ -814,7 +857,7 @@ const Companies = () => {
                                       ''
                                     )}
                                 {user.admin_user.role.value === 'nuclear_admin' ||
-                                user.admin_user.role.value === 'super_admin' ? (
+                                  user.admin_user.role.value === 'super_admin' || user.admin_user.role.value ==='ivc' ? (
                                       <ComputeSATScores
                                         key={nanoid()}
                                         company={company}

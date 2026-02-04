@@ -335,6 +335,23 @@ module.exports.makeAllCompanyBrandsActive = (store) => async (req, res) => {
 };
 
 /**
+ * Makes all comanies large.
+ *
+ * @param {Object} store - The data store interface.
+ * @returns {Function} Express handler function.
+ */
+module.exports.makeAllCompaniesLarge = (store) => async (req, res) => {
+  try {
+    // Make all companies sizes large in the data store
+    await store.makeAllCompaniesLarge();
+    return res.json({ message: 'All companies made large.' });
+  } catch (error) {
+    const message = 'Failed to make all companies large.';
+    console.error(message, error);
+    return res.status(500).json({ message });
+  }
+};
+/**
  * Changes all comments to tier 1.
  *
  * @param {Object} store - The data store interface.

@@ -3,6 +3,7 @@ loadEnv();
 const express = require('express');
 const cors = require('cors');
 const functions = require('firebase-functions');
+const { getFirestore } = require('firebase-admin/firestore');
 const nodemailer = require('nodemailer');
 const middlewares = require('./middlewares');
 const {updateAuthenticatedUserData} = require('./general');
@@ -37,7 +38,10 @@ const mailTransport = nodemailer.createTransport(
   smtpConfig
 );
 
-const store = require('./store')(admin.firestore(), admin.auth());
+// Use the KMFI named Firestore database (databaseId: "kmfi")
+// This keeps KMFI isolated from the default Firestore database in the same Firebase/GCP project.
+const kmfiFirestore = getFirestore(admin.app(), 'kmfi');
+const store = require('./store')(kmfiFirestore, admin.auth());
 
 const v1 = new express.Router();
 v1.get('/me', [middlewares.authorization(store)], getAuthenticatedUser(store));
@@ -50,6 +54,7 @@ v1.get('/product-type-list', generalRoutes.productTypeList(store));
 v1.get('/product-micro-nutrients', generalRoutes.productMicroNutrients(store));
 v1.get('/product-micro-nutrient', generalRoutes.productMicroNutrient(store));
 v1.get('/ranking-list', generalRoutes.rankingList(store));
+v1.get('/index-ranking-list', generalRoutes.indexRankingList(store));
 
 // Assessments routes
 const assessments = new express.Router();
@@ -139,11 +144,22 @@ adminRoute.put('/lock-sat', [middlewares.authorization(store), middlewares.isMFI
 adminRoute.get('/index', [middlewares.authorization(store), middlewares.isMFIAdmin], companyRoutes.getAdminIndex(store));
 adminRoute.post('/ivc', [middlewares.authorization(store), middlewares.isMFIAdmin], companyRoutes.submitIVCAnswer(store));
 adminRoute.get('/assessment-scores', [middlewares.authorization(store), middlewares.isMFIAdmin], assessmentsController.getScores(store));
+adminRoute.get('/all-assessment-scores', [middlewares.authorization(store), middlewares.isMFIAdmin], assessmentsController.getAllScores(store));
+adminRoute.get('/all-product-tests', [middlewares.authorization(store), middlewares.isMFIAdmin], assessmentsController.getAllProductTests(store));
+adminRoute.get('/sat-variance', [middlewares.authorization(store), middlewares.isMFIAdmin], assessmentsController.getSATVariance(store));
+adminRoute.get('/all-ieg-scores', [middlewares.authorization(store), middlewares.isMFIAdmin], assessmentsController.getAllIEGScores(store));
+adminRoute.get('/4pg-ranking', [middlewares.authorization(store), middlewares.isMFIAdmin], assessmentsController.getAll4PGRanking(store));
+adminRoute.get('/triangulation', [middlewares.authorization(store), middlewares.isMFIAdmin], assessmentsController.getTriangulation(store));
+adminRoute.get('/company-reports', [middlewares.authorization(store), middlewares.isMFIAdmin], assessmentsController.getCompanyReports(store));
+adminRoute.get('/company-reports/trend', [middlewares.authorization(store), middlewares.isMFIAdmin], assessmentsController.getCompanyReportsTrend(store));
+adminRoute.get('/4pg-top-performers', [middlewares.authorization(store), middlewares.isMFIAdmin], assessmentsController.getTopPerformers(store));
+adminRoute.get('/4pg-scores', [middlewares.authorization(store), middlewares.isMFIAdmin], assessmentsController.get4PGScores(store));
 adminRoute.delete('/company/delete/:id', [middlewares.authorization(store), middlewares.isMFIAdmin, middlewares.isAuthorized(canApproveSAT)], adminController.deleteCompanyData(store));
 adminRoute.delete('/micronutrient/:ptid', [middlewares.authorization(store), middlewares.isMFIAdmin, middlewares.isAuthorized(canApproveSAT)], adminController.deleteMicroNutrientScore(store));
 adminRoute.delete('/delete/user/:id/:authId', [middlewares.authorization(store), middlewares.isMFIAdmin, middlewares.isAuthorized(canApproveSAT)], adminController.deleteUser(store));
 adminRoute.post('/email', [middlewares.authorization(store), middlewares.isMFIAdmin], adminController.emailCompany(store, mailTransport));
 adminRoute.put('/brands/activate/all', [middlewares.authorization(store), middlewares.isMFIAdmin], adminController.makeAllCompanyBrandsActive(store));
+adminRoute.put('/companies/large/all', [middlewares.authorization(store), middlewares.isMFIAdmin], adminController.makeAllCompaniesLarge(store));
 adminRoute.put('/comments/update/all', [middlewares.authorization(store), middlewares.isMFIAdmin], adminController.makeAllCommentsTier1(store));
 adminRoute.put('/documents/update/all', [middlewares.authorization(store), middlewares.isMFIAdmin], adminController.makeAllDocumentsTier1(store));
 adminRoute.get('/sat-export/:company/:cycle', [middlewares.authorization(store), middlewares.isMFIAdmin], adminController.satExport(store));
@@ -158,7 +174,7 @@ app.use(cors());
 app.use('/api/v1', v1);
 app.get('/healthz', (req, res) => res.send('Ok'));
 
-exports.apiV1 = functions.https.onRequest(app);
+exports.kmfiApiV1 = functions.https.onRequest(app);
 
 
 /**

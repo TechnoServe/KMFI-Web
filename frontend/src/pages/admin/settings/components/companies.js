@@ -124,6 +124,20 @@ const Companies = () => {
       setLoading(false);
     }
   };
+  const makeAllCompaniesLarge = async () => {
+    setLoading(true);
+    try {
+      await request(true).put(`admin/companies/large/all`);
+      const data = await request(true).get(
+        'admin/companies-admin?page-size=50'
+      );
+      setTheCompanies(data.data);
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
+  };
 
   return (
     <Box fontFamily="DM Sans">
@@ -133,6 +147,7 @@ const Companies = () => {
             <Text className="text-align-left" fontSize="20px" fontWeight="700">
               Companies
             </Text>
+            <button onClick={() => makeAllCompaniesLarge()} className="button-secondary button-small w-button">Make All Companies Large</button>
             <button onClick={() => activateAllBrands()} className="button-secondary button-small w-button">Activate All Brands</button>
             <button onClick={() => openEmail({id: 'ALL'})} className="button-secondary button-small w-button">Email All Companies</button>
           </div>

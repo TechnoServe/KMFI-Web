@@ -182,7 +182,7 @@ const Page = () => {
               /> */}
             <ReactToPrint
               trigger={() => {
-                return <button className="button-secondary on-image w-button" download>
+                return <button className="button-secondary on-image w-button">
                   Download now
                 </button>;
               }}
