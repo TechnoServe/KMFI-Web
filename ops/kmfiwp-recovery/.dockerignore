@@ -1,0 +1,6 @@
+**
+!Dockerfile
+!kmfi-security.php
+!apache-hardening.conf
+!php-hardening.ini
+!kmfi-entrypoint.sh
